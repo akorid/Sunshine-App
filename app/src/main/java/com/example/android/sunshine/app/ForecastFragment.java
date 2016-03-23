@@ -225,7 +225,7 @@ public class ForecastFragment extends Fragment {
                 final String FORMAT_PARAM = "mode";
                 final String UNITS_PARAM = "units";
                 final String DAYS_PARAM = "cnt";
-                final String APIKEY_PARAM = "7d6b4b9ee19e502d05cb2f635ee5b699";
+                final String APIKEY_PARAM = "XX";
 
 
                 Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
