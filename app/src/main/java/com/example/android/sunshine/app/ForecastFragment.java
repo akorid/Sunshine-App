@@ -1,5 +1,7 @@
 package com.example.android.sunshine.app;
 
+import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,8 +14,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,7 +39,7 @@ import java.util.List;
 public class ForecastFragment extends Fragment {
 
 
-    private ArrayAdapter<String> forecastArray;
+    private ArrayAdapter<String> mForecastAdapter;
 
     public ForecastFragment() {
 
@@ -71,7 +75,7 @@ public class ForecastFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        String[] forecastArray = {
+        final String[] forecastArray = {
                 "Today - Sunny - 88/63",
                 "Tomorrow - Foggy - 70/40",
                 "Weds - Cloudy - 72/63",
@@ -79,20 +83,29 @@ public class ForecastFragment extends Fragment {
                 "Fri - Heavy Rain - 65/56",
                 "Sat - Cloudy - 76-62",
                 "Sun - Cloudy - 65-55"
-
         };
 
-        List<String> weekForecast = new ArrayList<String>(
-                Arrays.asList(forecastArray));
+        List<String> weekForecast = new ArrayList<String>(Arrays.asList(forecastArray));
 
-        ArrayAdapter arrayAdapter =
-                new ArrayAdapter<String>(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, weekForecast);
+        mForecastAdapter =
+                new ArrayAdapter<String>
+                        (getActivity(),
+                        R.layout.list_item_forecast,
+                        R.id.list_item_forecast_textview,
+                        weekForecast);
 
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
-        listView.setAdapter(arrayAdapter);
+        listView.setAdapter(mForecastAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterview, View view, int position, long l) {
+                String forecast = mForecastAdapter.getItem(position);
+                Intent intent = new Intent(getActivity(),DetailActivity.class).putExtra(Intent.EXTRA_TEXT,forecast);
+                startActivity(intent);
+            }
+        });
 
         return rootView;
-
     }
 
 
@@ -110,6 +123,7 @@ public class ForecastFragment extends Fragment {
         /**
          * Prepare the weather high/lows for presentation.
          */
+
         private String formatHighLows(double high, double low) {
             // For presentation, assume the user doesn't care about tenths of a degree.
             long roundedHigh = Math.round(high);
@@ -123,8 +137,8 @@ public class ForecastFragment extends Fragment {
          * Take the String representing the complete forecast in JSON Format and
          * pull out the data we need to construct the Strings needed for the wireframes.
          * <p/>
-         * Fortunately parsing is easy:  constructor takes the JSON string and converts it
-         * into an Object hierarchy for us.
+         * constructor takes the JSON string and converts it
+         * into an Object hierarchy.
          */
         private String[] getWeatherDataFromJson(String forecastJsonStr, int numDays)
                 throws JSONException {
@@ -218,14 +232,12 @@ public class ForecastFragment extends Fragment {
 
             try {
                 // Construct the URL for the OpenWeatherMap query
-                // Possible parameters are avaiable at OWM's forecast API page, at
-                // http://openweathermap.org/API#forecast
                 final String FORECAST_BASE_URL = "http://api.openweathermap.org/data/2.5/forecast/daily?";
                 final String CITY_PARAM = "id";
                 final String FORMAT_PARAM = "mode";
                 final String UNITS_PARAM = "units";
                 final String DAYS_PARAM = "cnt";
-                final String APIKEY_PARAM = "7d6b4b9ee19e502d05cb2f635ee5b699";
+                final String APIKEY_PARAM = "APPID";
 
 
                 Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
@@ -233,7 +245,7 @@ public class ForecastFragment extends Fragment {
                         .appendQueryParameter(FORMAT_PARAM, format)
                         .appendQueryParameter(UNITS_PARAM, units)
                         .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
-                        .appendQueryParameter(APIKEY_PARAM, apikey)
+                        .appendQueryParameter(APIKEY_PARAM, BuildConfig.OPEN_WEATHER_API_KEY)
                         .build();
                 // Create the request to OpenWeatherMap, and open the connection
                 URL url = new URL(builtUri.toString());
@@ -287,15 +299,28 @@ public class ForecastFragment extends Fragment {
                 }
             }
 
-
             try {
                 return getWeatherDataFromJson(forecastJsonStr, numDays);
-
-            } catch (JSONException e) {
+            }
+            catch (JSONException e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
                 e.printStackTrace();
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(String[] result) {
+            if (result != null) {
+
+                mForecastAdapter.clear();
+                for (String dayForecastStr : result) {
+
+                    mForecastAdapter.add(dayForecastStr);
+                }
+
+            }
+
         }
     }
 
