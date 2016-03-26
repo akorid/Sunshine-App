@@ -30,5 +30,8 @@
         <item>@string/pref_unit_imperial</item>
     </string-array>
 
+    <string name="action_map">Show location on map</string>
+    <string name="action_share">Share</string>
+
 
 </resources>

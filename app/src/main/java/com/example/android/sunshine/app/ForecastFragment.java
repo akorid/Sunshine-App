@@ -142,12 +142,12 @@ public class ForecastFragment extends Fragment {
          */
 
         private String formatHighLows(double high, double low, String unitType) {
-                if (unitType.equals(getString(R.string.pref_unit_imperial))) {
-                    high = (high * 1.8) + 32;
-                    low = (low * 1.8) + 32;
-                } else if (!unitType.equals(getString(R.string.pref_unit_metric))) {
-                    Log.d(LOG_TAG, "Unit type not found: " + unitType);
-                }
+            if (unitType.equals(getString(R.string.pref_unit_imperial))) {
+                high = (high * 1.8) + 32;
+                low = (low * 1.8) + 32;
+            } else if (!unitType.equals(getString(R.string.pref_unit_metric))) {
+                Log.d(LOG_TAG, "Unit type not found: " + unitType);
+            }
 
             // For presentation, assume the user doesn't care about tenths of a degree.
             long roundedHigh = Math.round(high);
@@ -263,19 +263,19 @@ public class ForecastFragment extends Fragment {
             try {
                 // Construct the URL for the OpenWeatherMap query
                 final String FORECAST_BASE_URL = "http://api.openweathermap.org/data/2.5/forecast/daily?";
-                final String CITY_PARAM = "id";
+                final String QUERY_PARAM = "q";
                 final String FORMAT_PARAM = "mode";
                 final String UNITS_PARAM = "units";
                 final String DAYS_PARAM = "cnt";
-                final String APIKEY_PARAM = "APPID";
+                final String APPID_PARAM = "APPID";
 
 
                 Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
-                        .appendQueryParameter(CITY_PARAM, params[0])
+                        .appendQueryParameter(QUERY_PARAM, params[0])
                         .appendQueryParameter(FORMAT_PARAM, format)
                         .appendQueryParameter(UNITS_PARAM, units)
                         .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
-                        .appendQueryParameter(APIKEY_PARAM, BuildConfig.OPEN_WEATHER_API_KEY)
+                        .appendQueryParameter(APPID_PARAM, BuildConfig.OPEN_WEATHER_API_KEY)
                         .build();
                 // Create the request to OpenWeatherMap, and open the connection
                 URL url = new URL(builtUri.toString());
