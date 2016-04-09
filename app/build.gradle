@@ -16,14 +16,19 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        buildTypes.each {
+            it.buildConfigField 'String', 'OPEN_WEATHER_API_KEY', API_KEY
+        }
+
     }
-buildTypes.each{
-    it.buildConfigField 'String', 'OPEN_WEATHER_API_KEY', "\" MyOpenWeatherApiKey \""
-}
 
-}
 
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:21.0.2'
+
+
+
+    dependencies {
+        compile fileTree(dir: 'libs', include: ['*.jar'])
+        compile 'com.android.support:appcompat-v7:21.0.2'
+        compile('com.google.android.gms:play-services-location:8.4.0')
+    }
 }
